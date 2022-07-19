@@ -1,67 +1,75 @@
 #include "sort.h"
-#include <limits.h>
-#include <stdlib.h>
 
 /**
- * get_max - Find max value in array of integers
- *
- * @array: array to find max value of
- * @size: size of the array
- * Return: 0
- */
-int get_max(int *array, size_t size)
+* findmax - Finds the maximum value in an array
+* @array: array to find max value of
+* @size: Size of array
+* Return: Largest value
+*/
+
+int findmax(int *array, size_t size)
 {
-	int max = INT_MIN;
+	int i, max = 0;
 
-	while (size--)
-		if (array[size] > max)
-			max = array[size];
-
+	for (i = 0; i < (int)size; i++)
+	{
+		if (max < array[i])
+			max = array[i];
+	}
 	return (max);
 }
 
 /**
- * counting_sort - sort an array
- * @array: array to sort
- * @size: size of array to sort
- */
+* count - Counts number of occurences of value in an array
+* @array: Array to count values of
+* @size: Size of array
+* @val: Value to count in the array
+* Return: Count of va
+*/
+
+int count(int *array, size_t size, int val)
+{
+	int c = 0, i;
+
+	for (i = 0; i < (int)size; i++)
+	{
+		if (array[i] == val)
+			c++;
+	}
+	return (c);
+}
+
+/**
+* counting_sort - sorts array using counting algorithm
+* @array: Array to sort
+* @size: Size of array
+*/
+
 void counting_sort(int *array, size_t size)
 {
-	int *temp, *cpy, j, max;
-	size_t i;
+	int max, *ca, i, *out, j;
 
-	if (!array || size < 2)
+	if (array == NULL || size < 2)
 		return;
-
-	max = get_max(array, size);
-	temp = calloc(max + 1, sizeof(*temp));
-	if (!temp)
+	max = findmax(array, size);
+	out = malloc(sizeof(int) * (int)size);
+	ca = malloc(sizeof(int) * (max + 1));
+	if (ca == NULL || out == NULL)
 		return;
-
-	cpy = malloc(sizeof(*cpy) * size);
-	if (!cpy)
+	for (i = j = 0; i < max + 1; i++)
 	{
-		free(temp);
-		return;
+		j += count(array, size, i);
+		ca[i] = j;
 	}
-
-	for (i = 0; i < size; i++)
-		temp[array[i]]++;
-
-	for (j = 1; j < max + 1; j++)
-		temp[j] += temp[j - 1];
-
-	print_array(temp, max + 1);
-
-	for (i = 0; i < size; i++)
+	print_array(ca, max + 1);
+	for (i = 0; i < (int)size; i++)
 	{
-		temp[array[i]]--;
-		cpy[temp[array[i]]] = array[i];
+		out[ca[array[i]] - 1] = array[i];
+		ca[array[i]] -= 1;
 	}
+	for (i = 0; i < (int)size; i++)
+		array[i] = out[i];
 
-	for (i = 0; i < size; i++)
-		array[i] = cpy[i];
-
-	free(temp);
-	free(cpy);
+	free(out);
+	free(ca);
 }
